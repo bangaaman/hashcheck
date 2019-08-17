@@ -1,0 +1,54 @@
+import java.io.*;
+import java.net.*;
+public class serverSocket
+{
+    public static void main(String[] args) throws IOException
+    {
+    
+        System.out.println("Basic Client Socket Programming");
+        
+        ServerSocket serverSocket = null;      
+        Socket  rcvSocket = null;               
+        DataOutputStream outputStream = null;  
+        DataInputStream inputStream = null;   
+        BufferedInputStream bis;
+        BufferedOutputStream bos;
+        int inInt;
+        byte[] data;
+       
+        try
+        {
+           serverSocket = new ServerSocket(2001);
+        }
+        catch (IOException e)
+        {
+           System.err.println(e);
+        }
+        // creating a socket to rcv incoming data
+        while (true)
+        {
+            try
+            {
+                System.out.println("Listening");
+                rcvSocket = serverSocket.accept();
+                System.out.println("Connected");
+                PrintWriter out = new PrintWriter(rcvSocket.getOutputStream(), true);
+                BufferedReader in = new BufferedReader(new InputStreamReader(rcvSocket.getInputStream()));
+         
+            byte[] receivedData = new byte[8192];
+            bis = new BufferedInputStream(rcvSocket.getInputStream());
+            bos = new BufferedOutputStream(new FileOutputStream("receivedHashed.txt"));
+            while ((inInt = bis.read(receivedData)) != -1)
+            {
+                bos.write(receivedData,0,inInt);
+            }
+            bos.flush();
+                out.println("File received!");
+            }
+            catch (IOException e)
+            {
+               System.err.println(e);
+            }
+        }
+    }
+}
