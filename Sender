@@ -1,0 +1,81 @@
+import java.io.*;
+import java.net.*;
+public class ClientSocket
+{
+    public static void main(String[] args) throws IOException
+    {
+        
+        System.out.println("Basic Client Socket Programming");
+        
+        Socket clientSocket = null;             
+        PrintWriter  outputStream = null;       
+        BufferedReader  inputStream = null;     
+        BufferedInputStream bis;
+        BufferedOutputStream bos;
+         num=2001
+        try
+        {
+            clientSocket = new Socket("127.0.0.1",  2001);
+            outputStream = new PrintWriter(clientSocket.getOutputStream(), true);
+            inputStream = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+        }
+        catch (UnknownHostException e)
+        {
+            System.err.println("Don't know about host: 127.0.0.1");
+            return;
+        }
+        catch (IOException e)
+        {
+            System.err.println("Couldn't get I/O for the connection to: 127.0.0.1");
+            return;
+        }
+        
+        if((clientSocket == null) || (outputStream == null) || (inputStream == null))
+        {
+            System.err.println("Socket Connection not successfull");
+            return;
+        }
+        else
+        {
+            System.out.println("Socket Connected");
+        }
+        //generate hash and send data
+        String hash = MD5.md5("Hello");
+        System.out.println("Hash code generated: "+hash);
+        BufferedWriter out = new BufferedWriter(new FileWriter("hashedCode.txt"));
+        out.write(hash); 
+        out.close(); 
+        
+        bis = new BufferedInputStream(new FileInputStream("hashedCode.txt"));
+        bos = new BufferedOutputStream(clientSocket.getOutputStream());
+        byte[] byteArray = new byte[8192];
+        int in;
+        while ((in = bis.read(byteArray)) != -1)
+        {
+            bos.write(byteArray,0,in);
+        }
+       
+        String rcvData;
+        rcvData = inputStream.readLine();
+        System.out.println(rcvData);
+        
+        try
+        {
+            outputStream.close();
+            inputStream.close();
+            bis.close();
+            bos.close();
+            clientSocket.close();
+            System.out.println("Connection closed.");
+        }
+        catch (UnknownHostException e)
+        {
+            System.err.println("Trying to connect to unknown host: " + e);
+        }
+        catch (IOException e)
+        {
+            System.err.println("IOException:  " + e);
+        }
+        return;
+    }
+}
